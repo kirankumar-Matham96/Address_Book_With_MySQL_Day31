@@ -1,0 +1,91 @@
+#UC1:Creating a data base:
+CREATE DATABASE payroll_service; # to create new data base
+SHOW DATABASES;			 # to see all the available data bases
+USE address_book_service_db;	 # for using perticular data base
+SELECT database(); 		 # to check which data base was selected or working with
+
+
+#UC2:Creating address book table with attributes
+CREATE TABLE address_book
+(
+ first_name VARCHAR(100) NOT NULL,
+ last_name VARCHAR(100) NOT NULL,
+ address VARCHAR(100) NOT NULL,
+ city VARCHAR(100) NOT NULL,
+ state VARCHAR(100) NOT NULL,
+ zip INT UNSIGNED NOT NULL,
+ phonenumber BIGINT NOT NULL,
+ email VARCHAR(300) NOT NULL
+); 
+
+#UC3:
+USE address_book_service_db;
+INSERT INTO address_book (first_name,last_name,address,city,state,zip,phonenumber,email) 
+VALUES ('Hruday','Vemuri','House no.2-5-7/b, kotipally.','Vijayavada','Andhra Pradesh',526389,9999999999,'hruday.vemuri@gmail.com');
+SELECT * FROM address_book;
+
+#UC4:
+USE address_book_service_db;
+UPDATE address_book set phonenumber = 2222222222
+WHERE first_name = 'Hruday' AND last_name = 'Vemuri';
+SELECT * FROM address_book;
+
+#UC5:
+USE address_book_service_db;
+DELETE FROM address_book
+WHERE first_name = 'Hruday' AND last_name = 'Vemuri';
+SELECT * FROM address_book;
+
+#UC6:
+USE address_book_service_db;
+SELECT * FROM address_book
+WHERE state = 'Telangana' OR city = 'Hyderabad';
+
+#UC7:
+#COUNT BY CITY:
+USE address_book_service_db;
+SELECT city,COUNT(*) FROM address_book
+GROUP BY city;
+
+#COUNT BY STATE:
+USE address_book_service_db;
+SELECT state,COUNT(*) FROM address_book
+GROUP BY state;
+
+#UC8:
+USE address_book_service_db;
+SELECT * FROM address_book
+WHERE city = 'Hyderabad'
+ORDER BY first_name ASC;
+
+#UC9:
+USE address_book_service_db;
+
+ALTER TABLE address_book
+ADD type VARCHAR(150) AFTER last_name;
+
+UPDATE address_book SET type = 'family'
+WHERE first_name = 'Vijay Sai Krishna' OR first_name = 'Pranay';
+
+UPDATE address_book SET type = 'friends'
+WHERE first_name = 'Shiva' OR last_name = 'Kurri';
+
+UPDATE address_book SET type = 'manager'
+WHERE first_name = 'Hruday' OR last_name = 'Vemuri';
+
+SELECT * from address_book
+WHERE type = 'family';
+
+#UC10:
+USE address_book_service_db;
+SELECT type,COUNT(*) from address_book
+GROUP BY type;
+
+#UC11:
+UPDATE address_book SET type = 'friends'
+WHERE first_name = 'Shiva' OR last_name = 'Kurri';
+
+UPDATE address_book SET type = 'manager'
+WHERE first_name = 'Hruday' OR last_name = 'Vemuri';
+
+#UC12:
