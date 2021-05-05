@@ -11,9 +11,9 @@ use employee_payroll_services;
 create table employee_payroll
 (
 	id int not null primary key auto_increment,
-    name varchar(45) not null,
-    salary Double not null,
-    start_date date not null
+	name varchar(45) not null,
+	salary Double not null,
+	start_date date not null
 );
 
 desc employee_payroll;
@@ -217,7 +217,7 @@ select * from employee_payroll;
 create table company
 (
 	comp_id int not null primary key auto_increment,
-    comp_name varchar(50)
+	comp_name varchar(50)
 );
 
 desc company;
@@ -231,9 +231,9 @@ select * from company;
 create table employee
 (
 	id int not null primary key auto_increment,
-    name varchar(45) not null,
-    comp_id int not null,
-    foreign key (comp_id) references company(comp_id)
+	name varchar(45) not null,
+	comp_id int not null,
+	foreign key (comp_id) references company(comp_id)
 );
 
 alter table employee add phonenumber varchar(20) after name;
@@ -270,13 +270,13 @@ select * from employee;
 create table payroll
 (
 	basic_pay double not null primary key,
-    deductions double,
-    taxable_pay double,
-    tax double,
-    net_pay double not null,
-    start_date date not null,
-    id int not null,
-    foreign key (id) references employee(id)
+	deductions double,
+	taxable_pay double,
+	tax double,
+	net_pay double not null,
+	start_date date not null,
+	id int not null,
+	foreign key (id) references employee(id)
 );
 desc payroll;
 
@@ -294,7 +294,7 @@ select * from payroll;
 create table department
 (
 	dept_id int not null primary key auto_increment,
-    dept_name varchar(45) not null
+	dept_name varchar(45) not null
 );
 
 desc department;
@@ -309,7 +309,7 @@ select * from department;
 create table dept_employee
 (
 	dept_id int not null,
-    emp_id int not null
+	emp_id int not null
 );
 
 desc dept_employee;
@@ -330,9 +330,9 @@ join payroll as P on E.id = P.id
 group by gender;
 
 #get avg basic pay by gender
- select gender, avg(basic_pay) as average from employee as E
- join payroll as P on E.id = P.id
- group by gender;
+select gender, avg(basic_pay) as average from employee as E
+join payroll as P on E.id = P.id
+group by gender;
  
 #get min of basic salary by gender
 select gender, min(basic_pay) as minimum_pay from employee as E
