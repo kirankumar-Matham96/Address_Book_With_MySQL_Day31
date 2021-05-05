@@ -1,0 +1,666 @@
+#ADDRESS BOOK DB
+
+#UC1:Creating a data base:
+CREATE DATABASE payroll_service; # to create new data base
+SHOW DATABASES;			 # to see all the available data bases
+USE address_book_service_db;	 # for using perticular data base
+SELECT database(); 		 # to check which data base was selected or working with
+
+//**********************************************************
+
+#UC2:Creating address book table with attributes
+CREATE TABLE address_book
+(
+	first_name VARCHAR(100) NOT NULL,
+	last_name VARCHAR(100) NOT NULL,
+	address VARCHAR(100) NOT NULL,
+	city VARCHAR(100) NOT NULL,
+	state VARCHAR(100) NOT NULL,
+	zip INT UNSIGNED NOT NULL,
+	phonenumber BIGINT NOT NULL,
+	email VARCHAR(300) NOT NULL
+); 
+
+//**********************************************************
+
+#UC3: INSERTING NEW CONTACTS INTO THE TABLE
+USE address_book_service_db;
+INSERT INTO address_book (first_name,last_name,address,city,state,zip,phonenumber,email) 
+VALUES ('Hruday','Vemuri','House no.2-5-7/b, kotipally.','Vijayavada','Andhra Pradesh',526389,9999999999,'hruday.vemuri@gmail.com');
+SELECT * FROM address_book;
+
+//**********************************************************
+
+#UC4: EDITING EXISTING CONTACTS USING NAME
+USE address_book_service_db;
+UPDATE address_book set phonenumber = 2222222222
+WHERE first_name = 'Hruday' AND last_name = 'Vemuri';
+SELECT * FROM address_book;
+
+//**********************************************************
+
+#UC5: DELETING CONTACT USING NAME
+USE address_book_service_db;
+DELETE FROM address_book
+WHERE first_name = 'Hruday' AND last_name = 'Vemuri';
+SELECT * FROM address_book;
+
+//**********************************************************
+
+#UC6: RETRIEVING CONTACT BY CITY OR STATE
+USE address_book_service_db;
+SELECT * FROM address_book
+WHERE state = 'Telangana' OR city = 'Hyderabad';
+
+//**********************************************************
+
+#UC7: FINDING SIZE OF BOOK BY CITY OR STATE
+
+#COUNT BY CITY:
+USE address_book_service_db;
+SELECT city,COUNT(*) FROM address_book
+GROUP BY city;
+
+##################
+
+#COUNT BY STATE:
+USE address_book_service_db;
+SELECT state,COUNT(*) FROM address_book
+GROUP BY state;
+
+//**********************************************************
+
+#UC8: GETTING DETAILS BY PERSON NAME FOR THE GIVEN CITY IN ALPHABETICAL ORDER
+USE address_book_service_db;
+SELECT * FROM address_book
+WHERE city = 'Hyderabad'
+ORDER BY first_name ASC;
+
+//**********************************************************
+
+#UC9: ADDING NAME AND TYPE TO THE TABLE
+USE address_book_service_db;
+
+ALTER TABLE address_book
+ADD type VARCHAR(150) AFTER last_name;
+
+UPDATE address_book SET type = 'family'
+WHERE first_name = 'Vijay Sai Krishna' OR first_name = 'Pranay';
+
+UPDATE address_book SET type = 'friends'
+WHERE first_name = 'Shiva' OR last_name = 'Kurri';
+
+UPDATE address_book SET type = 'manager'
+WHERE first_name = 'Hruday' OR last_name = 'Vemuri';
+
+SELECT * from address_book
+WHERE type = 'family';
+
+//**********************************************************
+
+#UC10: GETTING COUNT BY TYPE
+USE address_book_service_db;
+SELECT type,COUNT(*) from address_book
+GROUP BY type;
+
+//**********************************************************
+
+#UC11: ADDING SAME PERSON TO BOTH TYPES (FAMILY AND FRIENDS)
+UPDATE address_book SET type = 'friends'
+WHERE first_name = 'Shiva' OR last_name = 'Kurri';
+
+UPDATE address_book SET type = 'manager'
+WHERE first_name = 'Hruday' OR last_name = 'Vemuri';
+
+//**********************************************************
+
+#UC12: RE-CREATING TABLES TO DRAW ER-DIAGRAM
+
+# TO DRAW ER DIAGRAM:
+
+USE address_book_service_db;
+
+#creating new table with id and name and type
+create table name_type 
+(
+	id int not null auto_increment,
+	name varchar(150) not null,
+	type varchar(100) not null,
+	primary key(id)
+);
+
+#describing table attributes
+desc name_type;
+
+#copying data from address_book table to name_type table
+insert into name_type (name,type)
+select name,type from address_book;
+
+#printing everything in name_type table
+select * from name_type;
+
+#type is repeating, need to refactor!
+
+#creating new table
+create table id_name 
+(
+	id int not null auto_increment,
+	name varchar(300) not null,
+	primary key(id)
+);
+
+#checking if table created or not
+show tables;
+desc id_name;
+
+# copying data from name_type to id_name
+insert into id_name (name)
+select name from address_book;
+select * from id_name;
+
+#creating new table
+create table id_type 
+(
+	id int not null auto_increment,
+	type varchar(100) not null,
+	primary key(id)
+);
+
+#checking if table created or not
+show tables;
+desc id_type;
+
+# copying data from name_type to id_name
+insert into id_type (type)
+select type from address_book;
+select * from id_type;
+
+#type repeated in id_type table again, so need to refactor!
+
+#changing name of column id
+ALTER TABLE id_type CHANGE id type_id int not null auto_increment;
+select * from id_type;
+
+#changing column type (refactoring)
+update id_type set type = 'family'
+where type_id = 2;
+delete from id_type
+where type_id = 3 or type_id = 4 or type_id = 5;
+select * from id_type;
+
+##################
+
+#creating new table
+create table id_city
+(
+	city_id int not null auto_increment,
+	city varchar(150) not null,
+	primary key(city_id)
+);
+
+#checking if table created or not
+show tables;
+desc id_city;
+
+# copying data from name_type to id_name
+insert into id_city (city)
+select city from address_book;
+select * from id_city;
+
+#city repeated multiple times, need to refactor!
+
+#changing column city (refactoring)
+delete from id_city
+where city_id = 2 or city_id = 3;
+update id_city set city_id = 2
+where city = 'Nellur';
+update id_city set city_id = 3
+where city = 'Vijayavada';
+select * from id_city;
+
+#################################
+
+#creating new table
+create table id_state
+(
+	state_id int not null auto_increment,
+	state varchar(150) not null,
+	primary key(state_id)
+);
+
+#checking if table created or not
+show tables;
+desc id_state;
+
+# copying data from name_type to id_name
+insert into id_state (state)
+select state from address_book;
+select * from id_state;
+
+#state repeating, need refactoring!
+
+#changing column state (refactoring)
+delete from id_state
+where state_id = 2 or state_id = 3 or state_id = 5;
+update id_state set state_id = 2
+where state = 'Andhra Pradesh';
+select * from id_state;
+
+#################################
+
+#creating new table
+create table city_zip
+(
+	id int not null auto_increment,
+	city varchar(150) not null,
+	zip int not null,
+	primary key(id)
+);
+
+#checking if table created or not
+show tables;
+desc city_zip;
+
+# copying data from name_type to id_name
+insert into city_zip (city,zip)
+select city,zip from address_book;
+select * from city_zip;
+
+# city and zip values repeating, need refactoring!
+
+#changing column state (refactoring)
+delete from city_zip
+where id = 2 or id = 3;
+update city_zip set id = 2
+where city = 'Nellur';
+update city_zip set id = 3
+where city = 'Vijayavada';
+select * from city_zip;
+
+#################################
+
+#creating new table
+create table id_details
+(
+	id int not null auto_increment,
+	first_name varchar(150) not null,
+	last_name varchar(150) not null,
+	email varchar(300) not null,
+	primary key(id)
+);
+
+#checking if table created or not
+show tables;
+desc id_details;
+
+# copying data from name_type to id_name
+insert into id_details (first_name,last_name,email)
+select first_name,last_name,email from address_book;
+select * from id_details;
+
+#################################
+
+#creating new table
+create table id_phonenumber
+(
+	id int not null auto_increment,
+	phonenumber bigint not null,
+	primary key(id)
+);
+
+#checking if table created or not
+show tables;
+desc id_phonenumber;
+
+# copying data from address_book to id_phonenumber
+insert into id_phonenumber (phonenumber)
+select phonenumber from address_book;
+select * from id_phonenumber;
+
+//**********************************************************
+
+UC13: 
+##after drwaing the new ER-diagram (UPDATED ER-diagram for addressbook.png)
+
+#************ table1: name **************
+
+#create table: name
+create table name
+(
+	ID int primary key not null auto_increment,
+    name varchar(45) not null,
+    state_ID int not null key, #--> neither primary nor foreign key
+    city_ID int not null key   #--> neither primary nor foreign key
+);
+
+#describing attributes in the table
+desc name;
+
+#inserting names into the name table(name + last 3 digits of the phone_number: to make it unique)
+#(Kerala = 1, Karnataka = 2)
+#(Benguluru = 1, Udupi = 2, Bidar = 3, Kottayam = 4, Idukki = 5)
+insert into name (name,state_ID,city_ID)
+values 
+('Kiran123',2,1),#from Karnataka,Benguluru,zip1
+('Varun456',2,1),#from Karnataka,Benguluru,zip2
+('Charan789',2,2),#from Karnataka,Udupi,zip3
+('Vaasu321',2,2),#from Karnataka,Udupi,zip3
+('Amar654',2,3),#from Karnataka,Bidar,zip4(same address)
+('Gokul987',2,3),#from Karnataka,Bidar,zip4(same address)
+('Madhavi159',1,4),#from Kerala,Kottayam,zip5
+('Deepika753',1,4),#from Kerala,Kottayam,zip6(2 addresses at same area)
+('Swathi852',1,5);#from Kerala,Idukki,zip7,zip8,zip9(3 addresses at different areas)
+
+#printing the entire table
+select * from name;
+
+#************ table2: type_of_contacts **************
+
+#create table type_of_contact;
+create table type_of_contact
+(
+	ID int not null primary key auto_increment,
+    contact_type varchar(45) not null
+);
+
+#describing attributes in the table
+desc type_of_contact;
+
+#inserting values into the table
+insert into type_of_contact (contact_type)
+values
+('Friend'),
+('Family'),
+('Colleague');
+
+#printing the entire table
+select * from type_of_contact;
+
+#************ table3: details **************
+
+#create table details;
+create table details
+(
+	ID int not null primary key auto_increment,
+    first_name varchar(45),
+    last_name varchar(45),
+    email varchar(45),
+    name_ID int not null primary key
+);
+
+#describing attributes in the table
+desc details;
+
+#inserting values into the table
+insert into details (first_name, last_name, email,name_ID)
+values
+('Kiran Kumar','Matham','kiran.kumar@gmail.com',1),
+('Varun Kumar','Matam','varun.kumar@gmail.com',2),
+('Charan','Thrivedi','charan.t@gmail.com',3),
+('Vaasu','Malhothra','malhothravaasu@gmail.com',4),
+('Amar','Vandhya','vamar.52@gmail.com',5),
+('Gokul','Chat','gokulchat.hyd@gmail.com',6),
+('Madhavi Devi','Mandana','devimadhavi@gmail.com',7),
+('Deepika','Padukone','d.padukone@gmail.com',8),
+('Swathi Ramya','Picchika','ramyaswathi.picchika@gmail.com',9);
+
+#printing the entire table
+select * from details;
+
+#************ table4: phonenumber **************
+
+#create table phonenumber;
+create table phonenumber
+(
+	ID int not null primary key auto_increment,
+    phone_number varchar(45),
+    name_ID int not null primary key
+);
+
+#describing attributes in the table
+desc phonenumber;
+
+#inserting values into the table
+insert into phonenumber (phone_number,name_ID)
+values
+('+91 1111111111',1),('+91 2222111111',1),
+('+91 2222222222',2),('+91 1111222222',2),
+('+91 3333333333',3),
+('+91 4444444444',4),('+91 2222444444',4),('+91 3333444444',4),
+('+91 5555555555',5),
+('+91 6666666666',6),
+('+91 7777777777',7),('+91 2222777777',7),
+('+91 8888888888',8),
+('+91 9999999999',9);
+
+#printing the entire table
+select * from phonenumber;
+
+#************ table5: state **************
+
+#create table state;
+create table state
+(
+	ID int not null primary key auto_increment,
+    state_name varchar(45)
+);
+
+#describing attributes in the table
+desc state;
+
+#inserting values into the table
+insert into state (state_name)
+values
+('Kerala'),
+('Karnataka');
+
+#printing the entire table
+select * from state;
+
+#************ table6: city **************
+
+#create table city;
+create table city
+(
+	ID int not null primary key auto_increment,
+    city_name varchar(45),
+    state_ID int not null key   #--> neither primary nor foreign key
+);
+
+#describing attributes in the table
+desc city;
+
+#inserting values into the table
+insert into city (city_name,state_ID)
+values
+('Benguluru',2),#from Karnataka
+('Udupi',2),#from Karnataka
+('Bidar',2),#from Karnataka
+('Kottayam',1),#from Kerala
+('Idukki',1);#from Kerala
+
+#printing the entire table
+select * from city;
+
+#************ table7: zip **************
+
+#create table zip;
+create table zip
+(
+	ID int not null primary key auto_increment,
+    zip_code int,
+    city_ID int not null key   #--> neither primary nor foreign key
+);
+
+#describing attributes in the table
+desc zip;
+
+#inserting values into the table
+insert into zip (zip_code,city_ID)
+values
+(852963,1),#from benguluru
+(852963,1),#from benguluru
+(741852,2),#from Udupi
+(963852,3),#from Bidar
+(789456,4),#from Kottayam
+(789422,4),#from Kottayam
+(321321,5),#from Idukki
+(321322,5),#from Idukki
+(321323,5);#from Idukki
+
+#printing the entire table
+select * from zip;
+
+#************ table8: address **************
+
+#create table address;
+create table address
+(
+	ID int not null primary key auto_increment,
+    address varchar(300),
+    zip_ID int not null key   #--> neither primary nor foreign key
+);
+
+#describing attributes in the table
+desc address;
+
+#inserting values into the table
+insert into address (address,zip_ID)
+values
+('H.No.2-61',1),#from diff
+('H.No.5-92',2),#from diff
+('H.No.7-201',3),#from same zip1
+('H.No.6-42',3),#from same zip1
+('H.No.7-85',4),#same address1
+('H.No.3-12',5),#from diff
+('H.No.4-52',6),#from same zip1 & same person1
+('H.No.4-53',6),#from same zip1 & same person1
+('H.No.1-4-8',7),#from same zip2 & same person2
+('H.No.2-5-12',8),#from same zip3 & same person2
+('H.No.6-59',9);#from same zip4 & same person2
+
+#printing the entire table
+select * from address;
+
+#************ joint table1: name_has_address **************
+
+#create table name_has_address;
+create table name_has_address
+(
+	name_ID int not null primary key,
+    Address_ID int not null primary key
+);
+
+#describing attributes in the table
+desc name_has_address;
+
+#inserting values into the table
+insert into name_has_address (name_ID,Address_ID)
+values
+(1,1),(2,2),(3,3),
+(4,4),(5,5),(6,5),
+(7,6),(8,7),(8,8),
+(9,9),(9,10),(9,11);
+
+#printing the entire table
+select * from name_has_address;
+
+#************ joint table2: name_has_type_of_contact **************
+
+#creating connecting table for name and type_of_contact
+create table name_has_type_of_contact
+(
+	name_ID int not null primary key,
+    type_of_contact_ID int not null primary key
+);
+
+#describing attributes in the table
+desc name_has_type_of_contact;
+
+#inserting values into the table
+#(family = 2, friends = 1, colleague = 3)
+insert into name_has_type_of_contact (name_ID,type_of_contact_ID)
+values
+(1,1),(2,1),(3,2),
+(4,2),(5,3),(6,3),
+(7,1),(1,2),(1,3),
+(5,2),(7,3);
+
+#printing the entire table
+select * from name_has_type_of_contact;
+
+#************ joint table2: name_has_zip **************
+
+#create table name_has_zip
+create table name_has_zip
+(
+	name_ID int not null primary key,
+    zip_ID int not null primary key
+);
+
+#describing attributes in the table
+desc name_has_zip;
+
+#inserting values into the table
+insert into name_has_zip (name_ID,zip_ID)
+values
+(1,1),(2,2),(3,3),
+(4,3),(5,4),(6,4),
+(7,5),(8,6),(9,7),
+(9,8),(9,9);
+
+#printing the entire table
+select * from name_has_zip;
+
+#********************* getting data **********************
+
+###Retrieving data from tables (Using joints)
+
+#getting details by name
+select name.name,details.first_name,last_name,email from name,details
+where name.ID = details.name_ID;
+
+#getting details and phonenumber by name
+select name.name,details.first_name,last_name,email,phonenumber.phone_number from name,details,phonenumber
+where name.ID = details.name_ID and name.ID = phonenumber.name_ID;
+
+#getting NAME by STATE
+select name.name,state.state_name from name,state
+where name.state_ID = state.ID;
+
+#getting NAME by city
+select name.name,city.city_name from name,city
+where name.city_ID = city.ID;
+
+
+
+//**********************************************************
+
+#SOME USEFUL OPERATIONS:
+
+#################################
+use address_book_db;
+update address_book1 set name = concat(first_name ,' ', last_name);
+select * from address_book1;
+#################################
+use address_book_db;
+update address_book1 set type = 'friend'
+where name = 'Navin M';
+select * from address_book1; 
+#################################
+use address_book_db;
+select type,count(type) from address_book1
+group by type;
+select * from address_book1;
+#################################
+use address_book_db;
+insert into address_book1 (name,type,first_name,last_name,address,city,state,zip,phone_number,email)
+select name,type,first_name,last_name,address,city,state,zip,phone_number,email from address_book1
+where name = 'Mrunal N';
+select * from address_book1;
+#################################
+insert into address_book1 (name,type,first_name,last_name,address,city,state,zip,phone_number,email)
+select name,'family',first_name,last_name,address,city,state,zip,phone_number,email from address_book1
+where name = 'Navin M';
+#################################
+//*********************************************
